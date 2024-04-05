@@ -7,7 +7,6 @@ public class Temperature {
     private static final int minutes = 60;
     private static final int hours = 24;
     private static final CyclicBarrier barrier = new CyclicBarrier(num_temp_sensors);
-    public static ArrayList<Boolean> readingDone = new ArrayList<>();
     public static ArrayList<Integer> readings = new ArrayList<>();
     //returns the largest diff for the hour slot and the starting minute of the 10 min window.
     public static int[] getDifference(){
@@ -65,10 +64,8 @@ public class Temperature {
         Random random = new Random();
         for(int i = 0; i < hours; i++){
             for(int j = 0; j < minutes; j++){
-                readingDone.set(threadIdx, false);
                 int temp = random.nextInt(-100, 71);
                 readings.set(j + (threadIdx * minutes), temp);
-                readingDone.set(threadIdx, true);
             }
             try {
                 barrier.await();
@@ -88,7 +85,6 @@ public class Temperature {
             readings.add(-101);
         }
         for(int i = 0; i < num_temp_sensors; i++){
-            readingDone.add(false);
             int index = i;
             sensors[i] = new Thread(() -> getTemps(index));
         }
