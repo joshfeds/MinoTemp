@@ -1,4 +1,5 @@
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
@@ -7,12 +8,13 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Gifts {
     private static final ReentrantLock lock = new ReentrantLock();
     private static final int num_servants = 4;
-    private static final int num_presents = 50;
+    private static final int num_presents = 500000;
     private static int num_cards = 0;
     private static final ArrayList<Integer> bag = new ArrayList<>();
     private static final CoarseList list = new CoarseList();
 
     public static void doTask() {
+        PrintWriter writer = new PrintWriter(System.out);
         while(num_cards < num_presents){
             Random random = new Random();
             int randomValue = random.nextInt(3);
@@ -22,7 +24,7 @@ public class Gifts {
                 lock.lock();
                 if(!bag.isEmpty()){
                     int temp = bag.removeFirst();
-                    System.out.println("Added " + temp + " to the list");
+                    writer.println("Added " + temp + " to the list");
                     list.add(temp);
                 }
                 lock.unlock();
@@ -35,6 +37,7 @@ public class Gifts {
                     lock.unlock();
                     continue;
                 }
+                writer.println("We have written a thank you card for present id " + list.head.data);
                 list.delete(list.head.data);
                 num_cards++;
                 lock.unlock();
@@ -45,10 +48,12 @@ public class Gifts {
                 lock.lock();
                 randomValue = random.nextInt(num_presents);
                 if(list.contains(randomValue)){
-                    System.out.println("We have found " + randomValue);
+                    writer.println("We have found " + randomValue);
+
                 }
                 else {
-                    System.out.println("We have not found " + randomValue);
+                    writer.println("We have not found " + randomValue);
+
                 }
 
                 lock.unlock();
@@ -70,6 +75,7 @@ public class Gifts {
         for(int i = 0; i < num_servants; i++){
             servants[i] = new Thread(Gifts::doTask);
         }
+        long start = System.currentTimeMillis();
 
         for (Thread thread : servants) {
             thread.start();
@@ -79,6 +85,11 @@ public class Gifts {
             thread.join();
         }
 
-        System.out.println(num_cards);
+        long end = System.currentTimeMillis();
+        long duration = (end - start) / 1000;
+        System.out.println();
+        System.out.println("Finished in " + duration + " seconds");
+
+        System.out.println("Number of cards written: " + num_cards);
     }
 }
